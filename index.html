@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Afinidad política · Ceuta</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#667085;--bd:#e3e6ea;--ac:#1d4ed8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111418;--card:#1b2027;--tx:#eef0f3;--mu:#9aa3af;--bd:#2c333d;--ac:#6b93ff}}
+:root[data-theme="dark"]{--bg:#111418;--card:#1b2027;--tx:#eef0f3;--mu:#9aa3af;--bd:#2c333d;--ac:#6b93ff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:620px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.5rem;margin:.2em 0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:20px;margin-top:14px}
+.mu{color:var(--mu);font-size:.9rem}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:12px;padding:12px 14px;width:100%;text-align:left;margin-top:8px}
+button:hover{border-color:var(--ac)}
+.pri{background:var(--ac);color:#fff;border-color:var(--ac);text-align:center;font-weight:600}
+.row{display:flex;gap:8px}.row button{text-align:center;width:auto;flex:1}
+.bar{height:8px;background:var(--bd);border-radius:8px;overflow:hidden;margin-top:14px}
+.bar i{display:block;height:100%;background:var(--ac);transition:width .3s}
+.q{font-size:1.2rem;font-weight:600;margin:.6em 0 .2em}
+.res{margin-top:14px}.res b{display:flex;justify-content:space-between}
+.res .bar{margin-top:5px;height:12px}
+</style></head><body><main><div id="app"></div></main>
+<script>
+// Partidos: orden fijo para los códigos de cada pregunta
+const P=[["PP","#1f6fd1"],["Vox","#5fa83a"],["PSOE","#e2312d"],["MDyC","#0f9d8a"],["Ceuta Ya!","#e08a00"],["Sumar","#e5007d"],["Podemos","#6b2a8f"]];
+// Cada pregunta: [texto, "7 dígitos 0-4 = posición de cada partido (0 total desacuerdo … 4 total acuerdo)" en el orden de P]
+const Q=[
+["Bajar los impuestos a las empresas crea empleo.","4412200"],
+["Ceuta debe mantener sus ventajas fiscales y bonificaciones.","4344433"],
+["Hay que subir el salario mínimo con más fuerza.","1033344"],
+["Debe aumentar la plantilla de empleados públicos.","2133344"],
+["Hay que reducir el gasto político (asesores y cargos de confianza).","3433333"],
+["El turismo y el comercio deben ser el motor económico de Ceuta.","4343332"],
+["Hay que ampliar la actividad del puerto y crear zona franca.","4343432"],
+["Debe regularse más el comercio transfronterizo y atípico.","3433322"],
+["Los autónomos necesitan más ayudas directas.","4344444"],
+["Algunos servicios públicos funcionan mejor si los gestiona el sector privado.","3311100"],
+["Hay que limitar el precio del alquiler.","1033344"],
+["Debe construirse mucha más vivienda protegida pública.","3144444"],
+["La sanidad pública debe prescindir de conciertos con clínicas privadas.","1033344"],
+["Ceuta debería asumir las competencias sanitarias (traspaso del INGESA).","3233333"],
+["Debe haber más becas y gratuidad de libros de texto.","3244444"],
+["Hay que ampliar la educación concertada.","4421100"],
+["Debe enseñarse árabe o amazigh en los colegios.","1024333"],
+["El transporte urbano debería ser gratuito o casi gratuito.","2133344"],
+["Hay que invertir más en servicios sociales y ayudas a familias vulnerables.","3144444"],
+["Hay que reforzar las vallas y el control de la frontera.","4431210"],
+["Las devoluciones en caliente deben poder aplicarse.","3410100"],
+["Los menores migrantes no acompañados deben repartirse por todo el país.","2044444"],
+["Hay que regularizar a inmigrantes con arraigo y trabajo.","1034344"],
+["Los extranjeros que cometan delitos graves deben ser expulsados.","4432211"],
+["Hay que reabrir plenamente la frontera con Marruecos, también para el comercio.","2134444"],
+["Los españoles deben tener prioridad en ayudas y vivienda pública.","2410000"],
+["Hay que mejorar la integración y las infraestructuras de los barrios periféricos.","3144444"],
+["Ceuta debe basar su relación con Marruecos en el diálogo y la cooperación.","3044444"],
+["Hay que defender la españolidad de Ceuta sin concesiones a Marruecos.","4443332"],
+["Debe aumentar la presencia de las Fuerzas Armadas en Ceuta.","4432210"],
+["España debe mantener o aumentar el gasto en defensa.","4432210"],
+["Ceuta debería estar explícitamente protegida por la OTAN.","4433321"],
+["El aborto debe ser un derecho garantizado por ley.","1043344"],
+["La eutanasia debe seguir siendo legal.","2042244"],
+["Deben ampliarse los derechos de las personas LGTBI y trans.","1042244"],
+["La violencia de género merece tratamiento legal específico.","2043344"],
+["Deben existir cuotas de paridad en cargos públicos.","1033344"],
+["La religión debe seguir ofreciéndose en la escuela pública.","3423310"],
+["La monarquía debe mantenerse.","4432200"],
+["Ceuta debería convertirse en una comunidad autónoma de pleno derecho.","3033433"],
+["Hay que promover y preservar la convivencia entre las distintas culturas de Ceuta.","3144444"],
+["Hay que simplificar los trámites burocráticos para abrir negocios.","4433332"],
+["Hay que priorizar las energías renovables.","3143344"],
+["Debe mantenerse la prisión permanente revisable.","4421100"],
+["Se necesita más policía y videovigilancia en la ciudad.","4433221"],
+["Debería legalizarse el cannabis.","1022244"],
+["El Gobierno central debe aumentar mucho la inversión en Ceuta.","3344444"],
+["Hay que controlar más los contratos públicos y reforzar la oposición.","3334444"],
+["Los presupuestos deben ser en parte participativos, decididos por los vecinos.","3234444"],
+["La política de Ceuta debe centrarse en problemas locales antes que en partidos nacionales.","1014411"]
+];
+const OPT=["Totalmente en desacuerdo","En desacuerdo","Neutral","De acuerdo","Totalmente de acuerdo"];
+let i=-1,A=Array(Q.length).fill(null);
+const app=document.getElementById("app");
+function intro(){app.innerHTML=`<h1>Test de afinidad política de Ceuta</h1>
+<div class="card"><p>${Q.length} afirmaciones para ver con qué partido de Ceuta coincides más: PP, Vox, PSOE, MDyC y Ceuta Ya! (los cinco con representación en la Asamblea), además de Sumar y Podemos (sin representación actual).</p>
+<p class="mu">Aviso: las posiciones de cada partido se han estimado a partir de sus programas, propuestas de campaña y votaciones en la Asamblea, tal y como las recoge la prensa local. No son datos oficiales y pueden contener errores. Es un test divulgativo; contrasta siempre los programas reales.</p>
+<button class="pri" onclick="go(0)">Empezar</button></div>`}
+function go(n){i=n;if(i>=Q.length)return result();
+const pct=Math.round(i/Q.length*100);
+app.innerHTML=`<div class="mu">Pregunta ${i+1} de ${Q.length}</div><div class="bar"><i style="width:${pct}%"></i></div>
+<div class="card"><div class="q">${Q[i][0]}</div>
+${OPT.map((o,k)=>`<button onclick="ans(${k})" ${A[i]===k?'style="border-color:var(--ac);font-weight:600"':''}>${o}</button>`).join("")}
+<div class="row" style="margin-top:12px"><button onclick="go(${i-1})" ${i?'':'disabled'}>← Atrás</button><button onclick="ans(null)">Saltar</button></div></div>`}
+function ans(k){A[i]=k;go(i+1)}
+function result(){
+const n=A.filter(a=>a!==null).length;
+if(n<10){app.innerHTML=`<div class="card"><p>Responde al menos 10 preguntas para obtener un resultado fiable.</p><button class="pri" onclick="go(0)">Volver al test</button></div>`;return}
+const R=P.map((p,j)=>{let d=0;A.forEach((a,q)=>{if(a!==null)d+=Math.abs(a-(+Q[q][1][j]))});return{n:p[0],c:p[1],s:Math.round(100*(1-d/(4*n)))}}).sort((a,b)=>b.s-a.s);
+app.innerHTML=`<h1>Tu resultado</h1><p class="mu">Basado en ${n} respuestas. Mayor afinidad: <b>${R[0].n}</b> (${R[0].s}%).</p>
+<div class="card">${R.map(r=>`<div class="res"><b><span>${r.n}</span><span>${r.s}%</span></b><div class="bar"><i style="width:${r.s}%;background:${r.c}"></i></div></div>`).join("")}</div>
+<p class="mu">Resultado orientativo. Las posiciones de los partidos son estimaciones y pueden no reflejar sus programas actuales.</p>
+<button class="pri" onclick="A=Array(Q.length).fill(null);intro()">Repetir el test</button>`}
+intro();
+</script></body></html>
